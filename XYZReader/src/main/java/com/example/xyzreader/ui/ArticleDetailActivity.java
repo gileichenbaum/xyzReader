@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.animation.ArgbEvaluator;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
@@ -17,6 +18,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
@@ -41,6 +44,7 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
     private MyPagerAdapter mPagerAdapter;
     private ImageView mPhotoView;
     private CollapsingToolbarLayout mCollapsingToolbar;
+    private int mToolbarLastColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,8 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
         mPhotoView = (ImageView) findViewById(R.id.photo);
 
         mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+
+        mToolbarLastColor = getResources().getColor(R.color.color_primary);
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -151,7 +157,24 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
                         if (bitmap != null) {
                             Palette p = Palette.generate(bitmap, 12);
                             mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                            mCollapsingToolbar.setContentScrimColor(p.getDarkMutedColor(0xFF333333));
+
+                            final int toolbarNextColor = p.getDarkMutedColor(0xFF333333);
+
+                            final Animation animation = new Animation() {
+                                final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
+                                @Override
+                                protected void applyTransformation(final float interpolatedTime, final Transformation t) {
+                                    super.applyTransformation(interpolatedTime, t);
+                                    int color = (int) argbEvaluator.evaluate(interpolatedTime,mToolbarLastColor,toolbarNextColor);
+                                    mCollapsingToolbar.setContentScrimColor(color);
+                                    mToolbarLastColor = color;
+                                }
+                            };
+
+                            animation.setDuration(300);
+
+                            mCollapsingToolbar.startAnimation(animation);
+
                         }
                     }
 
