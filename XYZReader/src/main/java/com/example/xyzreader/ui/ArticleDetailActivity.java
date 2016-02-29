@@ -70,10 +70,11 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
 
-        Slide slide = new Slide(Gravity.BOTTOM);
-        slide.addTarget(mPager);
-        slide.setDuration(5000);
-        getWindow().setEnterTransition(slide);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Slide slide = new Slide(Gravity.BOTTOM);
+            slide.addTarget(mPager);
+            getWindow().setEnterTransition(slide);
+        }
 
         mPager.setAdapter(mPagerAdapter);
         mPager.setOffscreenPageLimit(3);
