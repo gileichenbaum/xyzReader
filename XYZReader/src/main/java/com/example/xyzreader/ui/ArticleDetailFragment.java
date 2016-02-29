@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.animation.Animator;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Loader;
@@ -91,17 +92,20 @@ public class ArticleDetailFragment extends Fragment implements
 
         if (mCursor != null) {
 
+            mRootView.setVisibility(View.VISIBLE);
+
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
 
-                            mRootView.setAlpha(0);
+                            final Cursor cursor = mCursor;
+                            if (cursor == null) return;
 
                             TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
                             TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
                             bylineView.setMovementMethod(new LinkMovementMethod());
-                            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+                            titleView.setText(cursor.getString(ArticleLoader.Query.TITLE));
 
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
@@ -112,15 +116,12 @@ public class ArticleDetailFragment extends Fragment implements
                             TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
                             bylineView.setText(Html.fromHtml(
                                     DateUtils.getRelativeTimeSpanString(
-                                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                                            cursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
                                             System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                                             DateUtils.FORMAT_ABBREV_ALL).toString()
                                             + " by "
-                                            + mCursor.getString(ArticleLoader.Query.AUTHOR)));
-                            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
-
-                            mRootView.setVisibility(View.VISIBLE);
-                            mRootView.animate().alpha(1);
+                                            + cursor.getString(ArticleLoader.Query.AUTHOR)));
+                            bodyView.setText(Html.fromHtml(cursor.getString(ArticleLoader.Query.BODY)));
                         }
 
                         @Override
@@ -162,5 +163,10 @@ public class ArticleDetailFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         bindViews();
+    }
+
+    @Override
+    public Animator onCreateAnimator(final int transit, final boolean enter, final int nextAnim) {
+        return super.onCreateAnimator(transit, enter, nextAnim);
     }
 }

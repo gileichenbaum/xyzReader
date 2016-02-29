@@ -17,6 +17,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
+import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -67,6 +69,12 @@ public class ArticleDetailActivity extends AppCompatActivity implements LoaderMa
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
+
+        Slide slide = new Slide(Gravity.BOTTOM);
+        slide.addTarget(mPager);
+        slide.setDuration(5000);
+        getWindow().setEnterTransition(slide);
+
         mPager.setAdapter(mPagerAdapter);
         mPager.setOffscreenPageLimit(3);
 
